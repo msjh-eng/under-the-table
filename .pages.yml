@@ -1,0 +1,103 @@
+# Pages CMS setup: this is what makes the easy posting form at app.pagescms.org.
+media:
+  input: media/photos
+  output: /media/photos
+  categories: [image]
+  rename: safe
+
+content:
+  - name: reports
+    label: Gum reports
+    type: collection
+    path: content/reports
+    format: yaml-frontmatter
+    filename: "{year}-{month}-{day}-{primary}.md"
+    view:
+      fields: [restaurant, city, date, gum]
+      primary: restaurant
+      sort: [date, restaurant]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: restaurant
+        label: Restaurant name
+        type: string
+        required: true
+      - name: city
+        label: Town or city
+        type: string
+      - name: state
+        label: State
+        type: string
+        description: Two letters is fine, like ME.
+      - name: date
+        label: When did you go?
+        description: Older visits are fine.
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: gum
+        label: How many pieces of gum?
+        description: Put 0 if the table was spotless.
+        type: number
+        default: 0
+        required: true
+        options:
+          min: 0
+      - name: colors
+        label: What colors?
+        description: Pick all you saw. Leave it empty if there was no gum.
+        type: select
+        options:
+          multiple: true
+          values: [green, pink, white, blue, purple, red, yellow, gray, brown]
+      - name: tables
+        label: How many tables did you check?
+        type: number
+        default: 1
+        options:
+          min: 1
+      - name: back
+        label: Would you go back?
+        type: select
+        options:
+          values:
+            - name: definitely
+              label: "Yes"
+            - name: maybe
+              label: Maybe
+            - name: nope
+              label: "No"
+      - name: photo
+        label: Photo
+        description: Optional. Just the gum or the table, no people.
+        type: image
+      - name: body
+        label: Your report
+        description: What did you find? What should the restaurant do? Leave a blank line between paragraphs.
+        type: text
+
+  - name: site
+    label: Site settings
+    type: file
+    path: content/site.yml
+    format: yaml
+    fields:
+      - name: author
+        label: Pen name
+        description: A nickname is safer than a real name.
+        type: string
+      - name: intro
+        label: Intro at the top of the home page
+        type: text
+      - name: restaurants_message
+        label: Message to restaurants
+        type: text
+      - name: everyone_message
+        label: Message to everyone else
+        type: text
+      - name: url
+        label: Website address
+        description: Your domain with https, like https://gumreport.com. Grown-ups only.
+        type: string
