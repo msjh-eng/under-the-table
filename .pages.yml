@@ -70,9 +70,12 @@ content:
             - name: nope
               label: "No"
       - name: photo
-        label: Photo
-        description: Optional. Just the gum or the table, no people.
+        label: Photos
+        description: Optional, up to 8. Just the gum or the table, no people.
         type: image
+        options:
+          multiple:
+            max: 8
       - name: body
         label: Your report
         description: What did you find? What should the restaurant do? Leave a blank line between paragraphs.

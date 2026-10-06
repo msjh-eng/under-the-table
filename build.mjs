@@ -155,7 +155,8 @@ let reports = files.map(f => {
     gum, colors,
     tables: Math.max(1, parseInt(data.tables, 10) || 1),
     back: BACK[String(data.back === true ? "yes" : data.back === false ? "no" : data.back || "").toLowerCase()] || "",
-    photo: String(data.photo || "").trim(),
+    // "photos" holds several pictures; older reports used a single "photo"
+    photos: [].concat(data.photos || [], data.photo || []).flat().map(x => String(x || "").trim()).filter(Boolean).filter((x, i, a) => a.indexOf(x) === i),
     draft: data.draft === true,
     paras: paragraphs(body),
   };
@@ -199,7 +200,8 @@ function tableSvg(list, label) {
 }
 const dots = r => r.colors.map(c => `<span class="dot" style="background:${COLORS[c]}" title="${esc(c)}"></span>`).join("");
 const tagsHtml = r => `<span class="tag ${r.gum ? "sticky" : "clean"}">${r.gum ? "" : "✓ "}${stickyLabel(r.gum)}</span>${dots(r)}${r.tables > 1 ? `<span class="tag plain">${r.tables} tables checked</span>` : ""}${r.back ? `<span class="tag plain">${esc(r.back)}</span>` : ""}`;
-const photoSrc = (r, prefix) => r.photo ? prefix + r.photo.replace(/^\/+/, "") : "";
+const photoSrc = (src, prefix) => prefix + String(src).replace(/^\/+/, "");
+const absPhoto = src => `${site.url}/${String(src).replace(/^\/+/, "")}`;
 const describe = r => {
   const where = place(r) ? ` in ${place(r)}` : "";
   const found = r.gum ? `${r.gum} piece${r.gum === 1 ? "" : "s"} of${r.colors.length ? " " + r.colors.join(" and ") : ""} gum stuck under the table` : "no gum under the table";
@@ -285,7 +287,7 @@ function reportPage(r) {
   const prefix = "../../";
   const canonical = `${site.url}/reports/${r.slug}/`;
   const others = reports.filter(o => o !== r).slice(0, 5);
-  const img = photoSrc(r, prefix);
+  const n = r.photos.length;
   const body = `<nav class="topbar" aria-label="Site"><a class="brand" href="${prefix}">Under the <span>Table</span></a><a class="navlink" href="${prefix}#reports-h">← All reports</a></nav>
 <article class="article">
 <div class="article-head">
@@ -295,7 +297,7 @@ function reportPage(r) {
 </div>
 <figure class="scene">${tableSvg([r], `The table at ${r.restaurant} with ${r.gum} piece${r.gum === 1 ? "" : "s"} of gum underneath`)}</figure>
 <div class="story">${r.paras.map(p => `<p>${inline(p).replace(/\n/g, "<br>")}</p>`).join("\n") || "<p>No write-up for this visit.</p>"}</div>
-${img ? `<figure class="photo"><img src="${esc(img)}" alt="Under the table at ${esc(r.restaurant)}" loading="lazy"><figcaption>Photo from under the table.</figcaption></figure>` : ""}
+${n ? `<figure class="photo${n > 1 ? " gallery" : ""}"><div class="shots">${r.photos.map((src, i) => `<a href="${esc(photoSrc(src, prefix))}"><img src="${esc(photoSrc(src, prefix))}" alt="Under the table at ${esc(r.restaurant)}${n > 1 ? `, photo ${i + 1} of ${n}` : ""}" loading="lazy"></a>`).join("")}</div><figcaption>${n > 1 ? `${n} photos` : "Photo"} from under the table.</figcaption></figure>` : ""}
 <dl class="facts">
 <div><dt>Restaurant</dt><dd>${esc(r.restaurant)}</dd></div>
 ${place(r) ? `<div><dt>Where</dt><dd>${esc(place(r))}</dd></div>` : ""}
@@ -311,10 +313,10 @@ ${footer(prefix)}`;
   const description = describe(r) + (r.paras[0] ? " " + plain(r.paras[0]).slice(0, 120) : "");
   return layout({
     prefix, title, description: description.slice(0, 300), canonical, body, ogType: "article",
-    ogImage: r.photo ? `${site.url}/${r.photo.replace(/^\/+/, "")}` : null,
+    ogImage: r.photos.length ? absPhoto(r.photos[0]) : null,
     jsonld: { "@context": "https://schema.org", "@type": "BlogPosting", headline: `${r.restaurant} gum report`, description: describe(r), datePublished: r.date, url: canonical, mainEntityOfPage: canonical,
       author: { "@type": "Person", name: site.author }, publisher: { "@type": "Organization", name: SITE_NAME },
-      ...(r.photo ? { image: `${site.url}/${r.photo.replace(/^\/+/, "")}` } : {}),
+      ...(r.photos.length ? { image: r.photos.map(absPhoto) } : {}),
       about: { "@type": "Restaurant", name: r.restaurant, ...(place(r) ? { address: { "@type": "PostalAddress", addressLocality: r.city || undefined, addressRegion: r.state || undefined } } : {}) } }
   });
 }
