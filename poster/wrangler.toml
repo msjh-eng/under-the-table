@@ -1,0 +1,12 @@
+# Cloudflare Worker for post.gumreport.com (deployed by .github/workflows/deploy-poster.yml)
+name = "gumreport-poster"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+account_id = "2126953396ce0c5ded960be15095c00a"
+workers_dev = true
+routes = [{ pattern = "post.gumreport.com", custom_domain = true }]
+
+[vars]
+GITHUB_REPO = "msjh-eng/under-the-table"
+GITHUB_BRANCH = "main"
+SITE_URL = "https://gumreport.com"

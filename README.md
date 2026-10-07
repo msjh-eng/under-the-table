@@ -25,7 +25,21 @@ Each report gets its own address, like `/reports/dok-mali-thai-portland-me/`, wi
 6. **Set up posting.** Go to https://app.pagescms.org, sign in with GitHub and install the Pages CMS app on this repository only. Open the repository, and **Gum reports → Add an entry** is the posting form.
 7. **Tell Google about it (optional, helps search).** Add your domain at https://search.google.com/search-console and submit `https://yourdomain.com/sitemap.xml`.
 
-## Posting a report
+## Posting from a phone: post.gumreport.com
+
+`poster/` is a small Cloudflare Worker that serves a password-protected posting form at **https://post.gumreport.com**. It shrinks photos on the phone before upload (removing location data), then saves the report and photos to this repository in one commit, which republishes the site.
+
+It deploys automatically through **Actions → Deploy posting page** once these repository secrets exist (Settings → Secrets and variables → Actions):
+
+| Secret | What it is |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token from the "Edit Cloudflare Workers" template |
+| `POST_PASSWORD` | The password for signing in to post.gumreport.com |
+| `POST_GITHUB_TOKEN` | Fine-grained GitHub token for this repository only, with **Contents: Read and write** |
+
+To change the password, update `POST_PASSWORD` and re-run **Deploy posting page**. When the GitHub token expires, make a new one, update `POST_GITHUB_TOKEN` and re-run the workflow.
+
+## Posting a report (Pages CMS)
 
 1. Open https://app.pagescms.org and pick the repository.
 2. Choose **Gum reports → Add an entry**.
