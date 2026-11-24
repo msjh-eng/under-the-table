@@ -2,7 +2,7 @@
 restaurant: Sol Italiano
 city: Portland
 state: ME
-date: 2026-11-23
+date: 2026-10-30
 gum: 1
 colors:
   - green
